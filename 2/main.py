@@ -1,5 +1,6 @@
 import re
 f = open('./input/input.txt')
+lines = f.readlines()
 
 def process_line(line):
     policy, password = line.split(":")
@@ -14,20 +15,43 @@ def process_line(line):
     splitted = policy.split('-')
     policy = (int(splitted[0]), int(splitted[1]))
 
+    return policy, char_needed, password
+
+
+def valid_part_1(policy, char_needed, password):
     if password.count(char_needed) >= policy[0] and password.count(char_needed) <= policy[1]:
         return 1
     else:
         return 0
 
+def valid_part_2(policy, char_needed, password):
+    if password[policy[0]-1] == char_needed and not password[policy[1]-1] == char_needed:
+        return 1
+    elif not password[policy[0]-1] == char_needed and password[policy[1]-1] == char_needed:
+        return 1
+    else:
+        return 0
 
 
-def solve():
+def solve1():
     valid_passwords = 0
-    for line in f.readlines():
-        valid_passwords += process_line(line)
+    for line in lines:
+        policy, char_needed, password = process_line(line)
+        valid_passwords += valid_part_1(policy, char_needed, password)
+
+    return valid_passwords
+
+def solve2():
+    valid_passwords = 0
+    for line in lines:
+        policy, char_needed, password = process_line(line)
+        valid_passwords += valid_part_2(policy, char_needed, password)
 
     return valid_passwords
 
 if __name__ == '__main__':
-    valid_passwords = solve()
+    valid_passwords = solve1()
     print("Number of valid passwords in input file: " + str(valid_passwords))
+
+    valid_passwords_2 = solve2()
+    print("Number of valid passwords in input file (2nd part): " + str(valid_passwords_2))
