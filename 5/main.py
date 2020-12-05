@@ -34,5 +34,14 @@ class BoardPass(object):
 if __name__ == '__main__':
     f = open(INPUT_FILE)
     passes = [BoardPass(x.rstrip()) for x in f.readlines()]
-    sol = max([p.id for p in passes])
-    print("Higest pass id is: {}".format(sol))
+    ids = [p.id for p in passes]
+    print("Higest pass id is: {}".format(max(ids)))
+
+    ids.sort()
+    sit_id = None
+    for i in range(ids[0], ids[-1]):
+        if i not in ids and i+1 in ids and i-1 in ids:
+            sit_id = i
+            break
+
+    print("Your sit has id: {}".format(sit_id))
