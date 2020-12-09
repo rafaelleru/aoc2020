@@ -20,9 +20,23 @@ def solve_1(code, preamble):
 
     return None
 
+def solve_2(code, invalid_number):
+    for set_size in range(2, len(code)):
+
+        for i in range(len(code)):
+            if i+set_size > len(code):
+                break
+            else:
+                if sum(code[i:i+set_size]) == invalid_number:
+                    print(code[i:i+set_size])
+                    return max(code[i:i+set_size]) + min(code[i:i+set_size])
 
 if __name__ == '__main__':
     with open(INPUT_FILE) as f:
         input_code = [int(x.strip()) for x in f.readlines()]
 
-    print(solve_1(input_code, 25))
+    invalid_number = solve_1(input_code, 25)
+    print("Solution for part 1 is: {}".format(invalid_number))
+
+    print(solve_2(input_code, invalid_number))
+
