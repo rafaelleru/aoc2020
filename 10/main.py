@@ -1,4 +1,7 @@
+from itertools import permutations
 from copy import deepcopy
+from collections import Counter
+
 INPUT_FILE = './input/input.txt'
 
 
@@ -23,6 +26,16 @@ def solve_1(adapters_list):
     return one_diff*three_diff
 
 
+def solve_2(adapters_list):
+    c = Counter({0:1})
+
+    for x in sorted([0] + adapters_list):
+        c[x+1] += c[x]
+        c[x+2] += c[x]
+        c[x+3] += c[x]
+
+    return c[adapters_list[0] + 3]
+
 
 if __name__ == '__main__':
     with open(INPUT_FILE) as f:
@@ -31,3 +44,4 @@ if __name__ == '__main__':
 
     sol1 = solve_1(deepcopy(adapters_list))
     print("solution to part 1 is: {}".format(sol1))
+    print("Solution to part 2 is: {}".format(solve_2(adapters_list)))
