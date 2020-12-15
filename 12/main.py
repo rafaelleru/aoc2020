@@ -47,10 +47,47 @@ def solve_1(movements):
     return abs(coord[0]) + abs(coord[1])
 
 
+def solve_2(movements):
+    coord = (0,0)
+    waypoint = [10,1]
+    facing = 0
+
+    mov_waypoint = {
+        'E': lambda x: (waypoint[0]+x, waypoint[1]),
+        'S': lambda y: (waypoint[0], waypoint[1]-y),
+        'W': lambda x: (waypoint[0]-x , waypoint[1]),
+        'N': lambda y: (waypoint[0], waypoint[1]+y)
+    }
+
+    for m in movements:
+        units = int(m[1:])
+        if 'F' in m:
+            coord = coord[0]+units*waypoint[0], coord[1]+units*waypoint[1]
+        elif 'N' in m:
+            waypoint = mov_waypoint['N'](units)
+        elif 'S' in m:
+            waypoint = mov_waypoint['S'](units)
+        elif 'E' in m:
+            waypoint = mov_waypoint['E'](units)
+        elif 'W' in m:
+            waypoint = mov_waypoint['W'](units)
+        else:
+            if 'L' in m:
+                units = -units
+
+            for i in range(int(units/90)%4):
+                # Rotacion de un vector
+                waypoint = [waypoint[1], -waypoint[0]]
+
+    return abs(coord[0]) + abs(coord[1])
+
+
 
 if __name__ == '__main__':
     with open(INPUT_FILE) as f:
         movements = [l.strip() for l in f.readlines()]
 
     manhattan = solve_1(movements)
+    print(manhattan)
+    manhattan = solve_2(movements)
     print(manhattan)
