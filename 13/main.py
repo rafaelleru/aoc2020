@@ -1,6 +1,7 @@
 import math
+from functools import reduce
 
-INPUT_FILE = './input/example.txt'
+INPUT_FILE = './input/input.txt'
 
 def parse_input():
     with open(INPUT_FILE) as f:
@@ -29,31 +30,31 @@ def solve_1(ts, bus_schedule):
 
     print(bus_id*wait)
 
+# https://rosettacode.org/wiki/Chinese_remainder_theorem#Python
+def mul_inv(a, b):
+    b0 = b
+    x0, x1 = 0, 1
+    if b == 1: return 1
+    while a > 1:
+        q = a // b
+        a, b = b, a%b
+        x0, x1 = x1 - q * x0, x0
+    if x1 < 0: x1 += b0
+    return x1
 
-def solve_2(bus_schedule):
-    timestamp = 0
-    s_i = 0
-    n = 1
-
-    partial_sols = []
-
-    for bus_id in bus_schedule:
-        if type(bus_id) == int:
-            n *= bus_id
-
-    for i, bus_id in enumerate(bus_schedule):
-        if bus_id == 'x':
-            continue
-
-        print("X === {} ({})".format(((bus_id-i)%bus_id), bus_id))
-        s_i = pow(n//bus_id, -1, bus_id)
-        partial_sols.append(((bus_id-i)%bus_id)*bus_id*s_i)
-
-    print(sum(partial_sols))
-
+def chinese_remainder(n, a):
+    sum = 0
+    prod = reduce(lambda a, b: a*b, n)
+    for n_i, a_i in zip(n, a):
+        p = prod // n_i
+        sum += a_i * mul_inv(p, n_i) * p
+    return sum % prod
 
 
 if __name__=='__main__':
     ts, bus_schedule = parse_input()
     solve_1(ts, bus_schedule)
-    solve_2(bus_schedule)
+
+    n = [x for x in bus_schedule if type(x) == int]
+    a = [(x-bus_schedule.index(x)-x)%x for x in n]
+    print(chinese_remainder(n, a))
