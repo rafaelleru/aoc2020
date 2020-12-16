@@ -23,3 +23,4 @@ if __name__ == '__main__':
     # numbers = [0,3,6] # Example
     numbers = [19,20,14,0,9,1] # Input
     solve_1(numbers, 2020)
+    solve_1(numbers, 30000000)
