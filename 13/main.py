@@ -30,6 +30,7 @@ def solve_1(ts, bus_schedule):
 
     print(bus_id*wait)
 
+# https://rosettacode.org/wiki/Chinese_remainder_theorem#Python
 def chinese_remainder(n, a):
     sum = 0
     prod = reduce(lambda a, b: a*b, n)
