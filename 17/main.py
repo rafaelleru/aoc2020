@@ -12,6 +12,7 @@ grid = defaultdict(lambda: '.')
 x_boundary = [0, 7]
 y_boundary = [0, 7]
 z_boundary = [0, 0]
+w_boundary = [0, 0]
 
 def parse_input():
     state = []
@@ -19,6 +20,15 @@ def parse_input():
         for i, line in enumerate(f.readlines()):
             for j, value in enumerate(line[:-1]):
                 grid[i, j, 0] = value
+
+    return grid
+
+def parse_input_2():
+    state = []
+    with open(INPUT_FILE) as f:
+        for i, line in enumerate(f.readlines()):
+            for j, value in enumerate(line[:-1]):
+                grid[i, j, 0, 0] = value
 
     return grid
 
@@ -62,6 +72,20 @@ def iterate_state(grid):
     new = defaultdict(lambda: '.',{k:v for k, v in grid.items() if v == '#'})
     return new
 
+def check_neighbors_2(grid, coord):
+    n_enabled = 0
+    for x in range(coord[0]-1, coord[0]+2):
+        for y in range(coord[1]-1, coord[1]+2):
+            for z in range(coord[2]-1, coord[2]+2):
+                for w in range(coord[3]-1, coord[3]+2):
+                    if (x, y, z, w) == coord:
+                        continue
+                    else:
+                        n_enabled += grid[x, y, z, w] == ACTIVE
+
+    return n_enabled
+
+
 def iterate_state_2(grid):
     coords = []
 
@@ -69,15 +93,17 @@ def iterate_state_2(grid):
     for x in range(x_boundary[0]-1, x_boundary[1]+2):
         for y in range(y_boundary[0] - 1, y_boundary[1]+2):
             for z in range(z_boundary[0] - 1, z_boundary[1]+2):
-                coords.append((x, y, z))
+                for w in range(w_boundary[0] - 1, w_boundary[1]+2):
+                    coords.append((x, y, z, w))
 
     x_boundary[0] = x_boundary[0] - 1; x_boundary[1] = x_boundary[1] + 2
     y_boundary[0] = y_boundary[0] - 1; y_boundary[1] = y_boundary[1] + 2
     z_boundary[0] = z_boundary[0] - 1; z_boundary[1] = z_boundary[1] + 1
+    w_boundary[0] = w_boundary[0] - 1; w_boundary[1] = w_boundary[1] + 1
 
     grid_copy = deepcopy(grid)
     for coord in coords:
-        n = check_neighbors(grid_copy, coord)
+        n = check_neighbors_2(grid_copy, coord)
         if grid[coord] == '#':
             if n ==2 or n ==3:
                 continue
@@ -92,7 +118,15 @@ def iterate_state_2(grid):
 
 
 if __name__ == '__main__':
-    grid = parse_input()
+    # grid = parse_input()
+    # for _ in range(6):
+        # grid = iterate_state(grid)
+    # print(list(grid.values()).count('#'))
+
+    # TODO: Part 1 was affecting part 2
+    # TODO: Revisitar este codigo, no puede ser mas feo y menos modular
+
+    grid = parse_input_2()
     for _ in range(6):
-        grid = iterate_state(grid)
-    print(list(grid.values()).count('#'))
+        grid = iterate_state_2(grid)
+        print(list(grid.values()).count('#'))
