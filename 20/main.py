@@ -1,12 +1,18 @@
 from copy import deepcopy
 from collections import defaultdict
 
-INPUT_FILE = './input/input.txt'
+INPUT_FILE = './input/example.txt'
 
 class Image():
     def __init__(self, tile_number, matrix):
         self.tile_number = tile_number
         self.matrix = matrix
+
+        # This represents the 4 possible neighbors of 1 image
+        self.up = None
+        self.down = None
+        self.left = None
+        self.right = None
 
     def flip_image_horizontally(self):
         new_img = []
@@ -62,7 +68,7 @@ def parse_input():
                 current_title_image = int(line.replace(':', '').split(' ')[1])
                 current_image = []
             else:
-                current_image.append(line)
+                current_image.append(list(line))
 
         # last image
         if current_image:
@@ -71,58 +77,73 @@ def parse_input():
     return images
 
 
-def find_corner(images):
-    pass
+def check_is_neighbor(image, candidate):
+    is_neighbor = False
+
+    if image.matrix[0] == candidate.matrix[-1]:
+        image.up = candidate
+        candidate.down = image
+        is_neighbor = True
+    elif image.matrix[-1] == candidate.matrix[0]:
+        image.down = candidate
+        candidate.up = image
+        is_neighbor = True
+    elif [x[-1] for x in candidate.matrix] == [x[0] for x in candidate.matrix]:
+        image.right = candidate
+        candidate.left = image
+        is_neighbor = True
+    elif [x[0] for x in candidate.matrix] == [x[-1] for x in candidate.matrix]:
+        image.left = candidate
+        candidate.right = image
+        is_neighbor = True
+
+    return is_neighbor
 
 def find_neighbors(img, img_list):
-    neighbors_list = []
+    neighbors_list = list()
+        
+    if img.tile_number == 1489:
+        import pdb; pdb.set_trace()
 
-    # flipped = deepcopy(img)
-    # flipped.flip_image()
-    img_frontiers = [img.matrix[0], img.matrix[-1], ''.join([x[0] for x in img.matrix]), ''.join([x[-1] for x in img.matrix])]
-    # img_frontiers += [flipped.matrix[0], flipped.matrix[-1], ''.join([x[0] for x in flipped.matrix]), ''.join([x[-1] for x in flipped.matrix])]
-
-    for candidate in img_list:
+    for tile, candidate in img_list.items():
         if candidate == img:
             continue
 
-        # if img.tile_number == 3079 and candidate.tile_number == 2311:
-            # import pdb; pdb.set_trace()
-        candidate_frontiers = [candidate.matrix[0], candidate.matrix[-1], ''.join([x[0] for x in candidate.matrix]), ''.join([x[-1] for x in candidate.matrix])]
-        flipped = deepcopy(candidate)
-        flipped.flip_image_vertically()
-        candidate_frontiers += [flipped.matrix[0], flipped.matrix[-1], ''.join([x[0] for x in flipped.matrix]), ''.join([x[-1] for x in flipped.matrix])]
-        flipped = deepcopy(candidate)
-        flipped.flip_image_horizontally()
-        candidate_frontiers += [flipped.matrix[0], flipped.matrix[-1], ''.join([x[0] for x in flipped.matrix]), ''.join([x[-1] for x in flipped.matrix])]
+        if img.tile_number == 1171 and candidate == 1489:
+            import pdb; pdb.set_trace()
 
-        """
-        ..##.#..#.  #.#.#####.
-        ##..#.....  .#..######
-        #...##..#.  ..#.......
-        ####.#...#  ######....
-        ##.##.###.  ####.#..#.
-        ##...#.###  .#...#.##.
-        .#.#.#..##  #.#####.##
-        ..#....#..  ..#.###...
-        ###...#.#.  ..#.......
-        ..###..###  ..#.###...
 
-        ..###..###  #.#.#####.
-        ###...#.#.  .#..######
-        ..#....#..  ..#.......
-        .#.#.#..##  ######....
-        ##...#.###  ####.#..#.
-        ##.##.###.  .#...#.##.
-        ####.#...#  #.#####.##
-        #...##..#.  ..#.###...
-        ##..#.....  ..#.......
-        ..##.#..#.  ..#.###...
+        # Comprobar si la imagen encaja directamente con el candidato
+        if check_is_neighbor(img, candidate):
+            neighbors_list.append(candidate)
+            continue
 
-        """
+        # comprobar si la imagen encaja con el candidato rotado 90, 180, 270 grados
+        rotated = deepcopy(candidate)
+        for i in range(3):
+            rotated.rotate()
+            is_neighbor = check_is_neighbor(img, rotated)
+            if is_neighbor:
+                neighbors_list.append(rotated)
+                img_list[tile] = rotated
+                break
+        else:
 
-        if any([x in img_frontiers for x in candidate_frontiers]):
-            neighbors_list.append(candidate.tile_number)
+            # comporobar si la imagen encaja con el candidato invertido izq dcha
+            flipped = deepcopy(candidate)
+            flipped.flip_image_horizontally()
+            if check_is_neighbor(img, flipped):
+                neighbors_list.append(flipped)
+                img_list[tile] = flipped
+                continue
+
+            # comprobar si la imagen encaja con el candidato invertido arriba abajo
+            flipped = deepcopy(candidate)
+            flipped.flip_image_vertically()
+            if check_is_neighbor(img, flipped):
+                neighbors_list.append(flipped)
+                img_list[tile] = flipped
+                continue
 
     return neighbors_list
 
@@ -130,9 +151,10 @@ def solve_1(images):
     adyacence_list = defaultdict(list)
 
     for tile, img_to_check in images.items():
-        neighbors = find_neighbors(img_to_check, images.values())
+        neighbors = find_neighbors(img_to_check, images)
         adyacence_list[tile] += neighbors
 
+    import pdb; pdb.set_trace()
     return adyacence_list
 
 if __name__ == '__main__':
@@ -142,7 +164,6 @@ if __name__ == '__main__':
     n = 1
     for k, v in adyacences.items():
         if len(v) == 2:
-            print(k)
             n *= k
 
     print(n)
