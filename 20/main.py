@@ -3,6 +3,7 @@ from collections import defaultdict
 
 INPUT_FILE = './input/example.txt'
 
+
 class Image():
     def __init__(self, tile_number, matrix):
         self.tile_number = tile_number
