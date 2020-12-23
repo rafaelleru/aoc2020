@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 INPUT_FILE = './input/input.txt'
 
 def parse_input():
@@ -49,10 +51,62 @@ def solve_1(p1_deck, p2_deck):
     print(score)
 
 
-if __name__ == "__main__":
-    # p1_deck = [9, 2, 6, 3, 1]
-    # p2_deck = [5, 8, 4, 7, 10]
+def solve_2(p1_deck, p2_deck):
+    winner = False
+    previous_rounds = set()
+    round = 0
 
-    p1_deck, p2_deck = parse_input()
+    while not winner:
+        print(round)
+        round += 1
+
+        if (tuple(p1_deck), tuple(p2_deck)) in previous_rounds:
+            return 1
+        else:
+
+            if p1_deck == []:
+                return 2
+            elif p2_deck == []:
+                return 1
+            else:
+                previous_rounds.add((tuple(p1_deck), tuple(p2_deck)))
+                d1_card = p1_deck.pop(0)
+                d2_card = p2_deck.pop(0)
+
+                if len(p1_deck) >= d1_card and len(p2_deck) >= d2_card:
+                    d1_copy = deepcopy(p1_deck)[:d1_card]
+                    d2_copy = deepcopy(p2_deck)[:d2_card]
+                    round_winner = solve_2(d1_copy, d2_copy)
+                    # __import__('pdb').set_trace()
+                    if round_winner == 1:
+                        p1_deck.append(min(d1_card, d2_card))
+                        p1_deck.append(max(d1_card, d2_card))
+                    else:
+                        p2_deck.append(min(d1_card, d2_card))
+                        p2_deck.append(max(d1_card, d2_card))
+                else:
+                    round_winner = 1 if d1_card > d2_card else 0
+
+                    if round_winner == 1:
+                        p1_deck.append(d1_card)
+                        p1_deck.append(d2_card)
+                    else:
+                        p2_deck.append(d2_card)
+                        p2_deck.append(d1_card)
+
+    return winner
+
+
+
+if __name__ == "__main__":
+
+    p1_deck = [9, 2, 6, 3, 1]
+    p2_deck = [5, 8, 4, 7, 10]
+    # p1_deck, p2_deck = parse_input()
 
     solve_1(p1_deck, p2_deck)
+
+    p1_deck = [9, 2, 6, 3, 1]
+    p2_deck = [5, 8, 4, 7, 10]
+    print(solve_2(p1_deck, p2_deck))
+    print(p2_deck)
